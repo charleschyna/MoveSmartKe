@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -8,15 +8,24 @@ import { getLiveAiInsights, type LiveAiInsightsInput } from '@/ai/flows/live-ai-
 import { Brain, Lightbulb } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-export function LiveAiInsights() {
+interface LiveAiInsightsProps {
+  region: string;
+  timeOfDay: string;
+}
+
+export function LiveAiInsights({ region, timeOfDay }: LiveAiInsightsProps) {
   const [insight, setInsight] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchInsight = async (region: string = "Nairobi", timeOfDay: string = "Evening Rush") => {
+  const fetchInsight = useCallback(async (currentRegion: string, currentTimeOfDay: string) => {
     setIsLoading(true);
     try {
-      const input: LiveAiInsightsInput = { region, timeOfDay };
+      // Map "current" time of day to a more descriptive value for the AI if needed
+      // For now, we'll pass it as is, but the AI prompt might benefit from more specific times.
+      const apiTimeOfDay = currentTimeOfDay === "current" ? "current real-time" : currentTimeOfDay;
+      
+      const input: LiveAiInsightsInput = { region: currentRegion, timeOfDay: apiTimeOfDay };
       const result = await getLiveAiInsights(input);
       setInsight(result.insight);
     } catch (error) {
@@ -30,11 +39,13 @@ export function LiveAiInsights() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]); // toast is stable, no need to include it if it causes re-renders
 
   useEffect(() => {
-    fetchInsight();
-  }, []);
+    if (region && timeOfDay) {
+      fetchInsight(region, timeOfDay);
+    }
+  }, [region, timeOfDay, fetchInsight]);
 
   return (
     <Card className="h-full">
@@ -54,7 +65,13 @@ export function LiveAiInsights() {
             <span>{insight || "No insights available."}</span>
           </p>
         )}
-        <Button variant="outline" size="sm" onClick={() => fetchInsight()} className="mt-4 w-full">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => fetchInsight(region, timeOfDay)} 
+          className="mt-4 w-full"
+          disabled={isLoading}
+        >
           Refresh Insight
         </Button>
       </CardContent>

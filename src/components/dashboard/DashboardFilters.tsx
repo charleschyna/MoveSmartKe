@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   Select,
   SelectContent,
@@ -10,14 +11,25 @@ import {
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 
-export function DashboardFilters() {
+interface DashboardFiltersProps {
+  onFilterChange: (filters: { region: string; timeOfDay: string }) => void;
+}
+
+export function DashboardFilters({ onFilterChange }: DashboardFiltersProps) {
+  const [region, setRegion] = useState("nairobi");
+  const [timeOfDay, setTimeOfDay] = useState("current");
+
+  useEffect(() => {
+    onFilterChange({ region, timeOfDay });
+  }, [region, timeOfDay, onFilterChange]);
+
   return (
     <Card>
       <CardContent className="pt-6">
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           <div>
             <Label htmlFor="region-filter" className="mb-2 block text-sm font-medium">Region</Label>
-            <Select defaultValue="nairobi">
+            <Select value={region} onValueChange={setRegion}>
               <SelectTrigger id="region-filter">
                 <SelectValue placeholder="Select Region" />
               </SelectTrigger>
@@ -31,7 +43,7 @@ export function DashboardFilters() {
           </div>
           <div>
             <Label htmlFor="time-filter" className="mb-2 block text-sm font-medium">Time of Day</Label>
-            <Select defaultValue="current">
+            <Select value={timeOfDay} onValueChange={setTimeOfDay}>
               <SelectTrigger id="time-filter">
                 <SelectValue placeholder="Select Time" />
               </SelectTrigger>

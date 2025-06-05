@@ -1,8 +1,11 @@
+'use client';
+
+import { useState } from 'react';
 import { TrafficMap } from '@/components/dashboard/TrafficMap';
 import { KpiCard, KpiCardProps } from '@/components/dashboard/KpiCard';
 import { LiveAiInsights } from '@/components/dashboard/LiveAiInsights';
 import { DashboardFilters } from '@/components/dashboard/DashboardFilters';
-import { Gauge, Clock, AlertTriangle, Lightbulb } from 'lucide-react';
+import { Gauge, Clock, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const kpiData: KpiCardProps[] = [
@@ -12,11 +15,17 @@ const kpiData: KpiCardProps[] = [
 ];
 
 export default function DashboardPage() {
+  const [filters, setFilters] = useState({ region: "nairobi", timeOfDay: "current" });
+
+  const handleFilterChange = (newFilters: { region: string; timeOfDay: string }) => {
+    setFilters(newFilters);
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-3xl font-headline font-semibold">Dashboard Overview</h1>
       
-      <DashboardFilters />
+      <DashboardFilters onFilterChange={handleFilterChange} />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {kpiData.map((kpi) => (
@@ -29,11 +38,10 @@ export default function DashboardPage() {
           <TrafficMap />
         </div>
         <div>
-          <LiveAiInsights />
+          <LiveAiInsights region={filters.region} timeOfDay={filters.timeOfDay} />
         </div>
       </div>
 
-      {/* Placeholder for additional charts or information */}
       <Card>
         <CardHeader>
           <CardTitle>More Analytics</CardTitle>
