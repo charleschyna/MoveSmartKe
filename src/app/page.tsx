@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { TrafficMap } from '@/components/dashboard/TrafficMap';
 import { KpiCard, KpiCardProps } from '@/components/dashboard/KpiCard';
 import { LiveAiInsights } from '@/components/dashboard/LiveAiInsights';
@@ -17,9 +18,9 @@ const kpiData: KpiCardProps[] = [
 export default function DashboardPage() {
   const [filters, setFilters] = useState({ region: "nairobi", timeOfDay: "current" });
 
-  const handleFilterChange = (newFilters: { region: string; timeOfDay: string }) => {
+  const handleFilterChange = useCallback((newFilters: { region: string; timeOfDay: string }) => {
     setFilters(newFilters);
-  };
+  }, []);
 
   return (
     <div className="flex flex-col gap-6">
